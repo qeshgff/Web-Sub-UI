@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>订阅管理系统</title>
+    <link rel="stylesheet" href="/assets/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1><i class="fas fa-rss"></i> 订阅管理系统</h1>
+            <div class="user-info">
+                <span id="currentUser">未登录</span>
+                <button id="loginBtn" class="btn btn-primary">登录</button>
+            </div>
+        </header>
+
+        <nav class="nav-tabs">
+            <button class="tab-btn active" data-tab="dashboard">
+                <i class="fas fa-tachometer-alt"></i> 仪表板
+            </button>
+            <button class="tab-btn" data-tab="groups">
+                <i class="fas fa-layer-group"></i> 分组管理
+            </button>
+            <button class="tab-btn" data-tab="nodes">
+                <i class="fas fa-server"></i> 节点管理
+            </button>
+            <button class="tab-btn" data-tab="import">
+                <i class="fas fa-upload"></i> 批量导入
+            </button>
+            <button class="tab-btn" data-tab="settings">
+                <i class="fas fa-cog"></i> 设置
+            </button>
+        </nav>
+
+        <!-- 仪表板 -->
+        <div id="dashboard" class="tab-content active">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <i class="fas fa-layer-group"></i>
+                    <div class="stat-info">
+                        <h3 id="totalGroups">0</h3>
+                        <p>分组总数</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-server"></i>
+                    <div class="stat-info">
+                        <h3 id="totalNodes">0</h3>
+                        <p>节点总数</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-download"></i>
+                    <div class="stat-info">
+                        <h3 id="totalSubscriptions">0</h3>
+                        <p>订阅链接</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-clock"></i>
+                    <div class="stat-info">
+                        <h3 id="lastUpdate">--</h3>
+                        <p>最后更新</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="recent-activity">
+                <h2>最近活动</h2>
+                <div id="activityList" class="activity-list">
+                    <!-- 活动记录将动态加载 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 分组管理 -->
+        <div id="groups" class="tab-content">
+            <div class="section-header">
+                <h2>分组管理</h2>
+                <button id="addGroupBtn" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> 新建分组
+                </button>
+            </div>
+            
+            <div id="groupsList" class="groups-grid">
+                <!-- 分组卡片将动态加载 -->
+            </div>
+        </div>
+
+        <!-- 节点管理 -->
+        <div id="nodes" class="tab-content">
+            <div class="section-header">
+                <h2>节点管理</h2>
+                <div class="controls">
+                    <select id="groupFilter" class="form-select">
+                        <option value="">所有分组</option>
+                    </select>
+                    <button id="addNodeBtn" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> 添加节点
+                    </button>
+                </div>
+            </div>
+            
+            <div class="nodes-table-container">
+                <table id="nodesTable" class="nodes-table">
+                    <thead>
+                        <tr>
+                            <th>节点名称</th>
+                            <th>类型</th>
+                            <th>地址</th>
+                            <th>端口</th>
+                            <th>分组</th>
+                            <th>状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- 节点数据将动态加载 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 批量导入 -->
+        <div id="import" class="tab-content">
+            <div class="import-section">
+                <h2>批量导入节点</h2>
+                <div class="import-methods">
+                    <div class="import-method">
+                        <h3><i class="fas fa-paste"></i> 文本导入</h3>
+                        <p>支持 Xray 格式的 vless://, vmess://, trojan:// 等协议链接</p>
+                        <textarea id="importText" placeholder="请粘贴节点链接，每行一个..."></textarea>
+                        <div class="import-options">
+                            <select id="importGroup" class="form-select">
+                                <option value="">选择目标分组</option>
+                            </select>
+                            <button id="parseTextBtn" class="btn btn-success">
+                                <i class="fas fa-search"></i> 解析节点
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="import-method">
+                        <h3><i class="fas fa-file-upload"></i> 文件导入</h3>
+                        <p>支持 .txt, .json 格式的配置文件</p>
+                        <div class="file-upload-area" id="fileUploadArea">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <p>拖拽文件到此处或点击选择</p>
+                            <input type="file" id="fileInput" accept=".txt,.json" style="display: none;">
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="importPreview" class="import-preview" style="display: none;">
+                    <h3>导入预览</h3>
+                    <div id="previewContent"></div>
+                    <div class="preview-actions">
+                        <button id="confirmImportBtn" class="btn btn-success">
+                            <i class="fas fa-check"></i> 确认导入
+                        </button>
+                        <button id="cancelImportBtn" class="btn btn-secondary">
+                            <i class="fas fa-times"></i> 取消
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 设置 -->
+        <div id="settings" class="tab-content">
+            <div class="settings-section">
+                <h2>系统设置</h2>
+                <form id="settingsForm" class="settings-form">
+                    <div class="form-group">
+                        <label for="systemName">系统名称</label>
+                        <input type="text" id="systemName" class="form-input" value="订阅管理系统">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="defaultToken">默认TOKEN</label>
+                        <input type="text" id="defaultToken" class="form-input" value="auto">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="subApi">订阅转换API</label>
+                        <input type="text" id="subApi" class="form-input" value="SUBAPI.cmliussss.net">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="tgToken">Telegram Bot Token</label>
+                        <input type="password" id="tgToken" class="form-input">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="tgId">Telegram ID</label>
+                        <input type="text" id="tgId" class="form-input">
+                    </div>
+                    
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-save"></i> 保存设置
+                    </button>
+                </form>
+            </div>
+            
+            <div class="subscription-links">
+                <h2>订阅链接</h2>
+                <div id="subscriptionsList" class="subscriptions-list">
+                    <!-- 订阅链接将动态生成 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 模态框 -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <!-- 通知容器 -->
+    <div id="notifications" class="notifications"></div>
+
+    <script src="/assets/script.js"></script>
+</body>
+</html>
