@@ -1,0 +1,14 @@
+name = "cf-workers-sub-ui"
+compatibility_date = "2023-08-14"
+compatibility_flags = ["nodejs_compat"]
+
+[env.production]
+# KV 命名空间绑定
+[[env.production.kv_namespaces]]
+binding = "SUBSCRIPTION_KV"
+id = "your-kv-namespace-id"  # 需要在部署后替换为实际的KV命名空间ID
+
+# 环境变量
+[env.production.vars]
+DEFAULT_API = "https://sub.cmliussss.com"
+ENVIRONMENT = "production"
