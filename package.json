@@ -1,0 +1,28 @@
+{
+  "name": "cf-workers-sub-ui",
+  "version": "1.0.0",
+  "description": "CF-Workers-SUB UI管理界面",
+  "main": "index.html",
+  "scripts": {
+    "dev": "wrangler pages dev .",
+    "deploy": "wrangler pages deploy .",
+    "build": "echo 'No build step required'",
+    "preview": "wrangler pages dev . --port 3000"
+  },
+  "keywords": [
+    "cloudflare",
+    "workers",
+    "subscription",
+    "proxy",
+    "v2ray",
+    "clash"
+  ],
+  "author": "CF-Workers-SUB-UI",
+  "license": "MIT",
+  "devDependencies": {
+    "wrangler": "^3.101.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}
